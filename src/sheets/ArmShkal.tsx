@@ -1,14 +1,144 @@
 import { useMemo, useState } from 'react'
 import {
+  ARM_SECTIONS,
+  blockStartRow,
   blockToLiraClipboard,
   parseArmScaleBlocks,
   type ScaleBlock,
 } from '../lib/armScales'
-import { SheetShell } from './shared'
+import { Field, SheetShell } from './shared'
+
+type FilterId = 'all' | 'fp' | 'pp' | 'walls'
+
+const FILTERS: { id: FilterId; label: string; sectionKey?: string }[] = [
+  { id: 'all', label: 'Все' },
+  { id: 'fp', label: 'Фундаментные плиты', sectionKey: ARM_SECTIONS.fp },
+  { id: 'pp', label: 'Плиты перекрытия', sectionKey: ARM_SECTIONS.pp },
+  { id: 'walls', label: 'Стены', sectionKey: ARM_SECTIONS.walls },
+]
+
+const SECTION_LABEL: Record<string, string> = {
+  [ARM_SECTIONS.fp]: 'Фундаментные плиты',
+  [ARM_SECTIONS.pp]: 'Плиты перекрытия',
+  [ARM_SECTIONS.walls]: 'Стены',
+}
+
+type BlockPair = [ScaleBlock | null, ScaleBlock | null]
 
 function formatArea(v: number | null): string {
   if (v == null || !Number.isFinite(v)) return '—'
   return String(v).replace(',', '.')
+}
+
+function sectionLabel(section: string): string {
+  return SECTION_LABEL[section] ?? section
+}
+
+function colIndex(col: string): number {
+  let n = 0
+  for (const ch of col) n = n * 26 + (ch.charCodeAt(0) - 64)
+  return n
+}
+
+function isVertical(b: ScaleBlock): boolean {
+  return /вертикал/i.test(b.title)
+}
+
+function isHorizontal(b: ScaleBlock): boolean {
+  return /горизонт/i.test(b.title)
+}
+
+/**
+ * Пары в один ряд (одинаковый уровень):
+ * - ФП / плиты: слева шаг 250, справа 200, по диаметру
+ * - Стены: слева Вертикальная, справа горизонт…, по колонке Excel
+ */
+function pairBlocks(section: string, list: ScaleBlock[]): BlockPair[] {
+  if (section === ARM_SECTIONS.walls) {
+    const byCol = new Map<string, ScaleBlock[]>()
+    for (const b of list) {
+      const arr = byCol.get(b.codeCol) ?? []
+      arr.push(b)
+      byCol.set(b.codeCol, arr)
+    }
+    const cols = [...byCol.keys()].sort((a, b) => colIndex(a) - colIndex(b))
+    const pairs: BlockPair[] = []
+    for (const col of cols) {
+      const items = byCol.get(col) ?? []
+      const vert = items.find(isVertical) ?? null
+      const horiz = items.find(isHorizontal) ?? null
+      const other = items.filter((b) => b !== vert && b !== horiz)
+      if (vert || horiz) pairs.push([vert, horiz])
+      for (const b of other) pairs.push([b, null])
+    }
+    return pairs
+  }
+
+  // ФП и плиты: как в Excel — слева шаг 250, справа 200, пары по порядку сверху вниз
+  const byExcelRow = (a: ScaleBlock, b: ScaleBlock) =>
+    blockStartRow(a) - blockStartRow(b)
+
+  const left = list.filter((b) => b.step === 250).sort(byExcelRow)
+  const right = list.filter((b) => b.step === 200).sort(byExcelRow)
+  const rest = list.filter((b) => b.step !== 250 && b.step !== 200)
+
+  if (left.length === 0 && right.length === 0) {
+    return list.map((b) => [b, null] as BlockPair)
+  }
+
+  const n = Math.max(left.length, right.length)
+  const pairs: BlockPair[] = []
+  for (let i = 0; i < n; i++) {
+    pairs.push([left[i] ?? null, right[i] ?? null])
+  }
+  for (const b of rest.sort(byExcelRow)) {
+    pairs.push([b, null])
+  }
+  return pairs
+}
+
+function BlockCard({
+  block,
+  copied,
+  onCopy,
+}: {
+  block: ScaleBlock
+  copied: boolean
+  onCopy: (b: ScaleBlock) => void
+}) {
+  return (
+    <article className={`arm-block${copied ? ' copied' : ''}`}>
+      <button
+        type="button"
+        className="arm-block-head"
+        onClick={() => onCopy(block)}
+        title="Скопировать блок для ЛираСАПР"
+      >
+        <span className="arm-block-title">{block.title}</span>
+        <span className="arm-block-action">
+          {copied ? 'Скопировано' : 'Нажмите, чтобы скопировать'}
+        </span>
+      </button>
+      <div className="arm-table-wrap">
+        <table className="arm-table">
+          <thead>
+            <tr>
+              <th>Шкала</th>
+              <th>Площадь</th>
+            </tr>
+          </thead>
+          <tbody>
+            {block.entries.map((e, i) => (
+              <tr key={`${block.id}-${i}`}>
+                <td className="arm-code">{e.code}</td>
+                <td className="arm-area">{formatArea(e.area)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </article>
+  )
 }
 
 export function ArmShkalSheet() {
@@ -24,106 +154,90 @@ export function ArmShkalSheet() {
   }, [blocks])
 
   const [copiedId, setCopiedId] = useState<string | null>(null)
-  const [q, setQ] = useState('')
+  const [filter, setFilter] = useState<FilterId>('all')
 
   const filtered = useMemo(() => {
-    const needle = q.trim().toLowerCase()
-    if (!needle) return sections
-    return sections
-      .map(([section, list]) => [
-        section,
-        list.filter(
-          (b) =>
-            b.title.toLowerCase().includes(needle) ||
-            b.rangeLabel.toLowerCase().includes(needle) ||
-            b.entries.some((e) => e.code.toLowerCase().includes(needle)),
-        ),
-      ] as const)
-      .filter(([, list]) => list.length > 0)
-  }, [sections, q])
+    if (filter === 'all') return sections
+    const key = FILTERS.find((f) => f.id === filter)?.sectionKey
+    if (!key) return sections
+    return sections.filter(([section]) => section.toUpperCase() === key)
+  }, [sections, filter])
 
   async function copyBlock(block: ScaleBlock) {
     const text = blockToLiraClipboard(block)
     try {
       await navigator.clipboard.writeText(text)
-      setCopiedId(block.id)
-      window.setTimeout(() => setCopiedId(null), 1800)
     } catch {
-      // fallback
       const ta = document.createElement('textarea')
       ta.value = text
       document.body.appendChild(ta)
       ta.select()
       document.execCommand('copy')
       document.body.removeChild(ta)
-      setCopiedId(block.id)
-      window.setTimeout(() => setCopiedId(null), 1800)
     }
+    setCopiedId(block.id)
+    window.setTimeout(() => setCopiedId(null), 1800)
   }
 
   return (
     <SheetShell
       title="Арм шкал"
-      subtitle="Блоки шкал как в Excel — копируйте целиком и вставляйте в «Параметры шкалы» ЛираСАПР (вкладка Диапазоны)."
+      subtitle="Нажмите на название блока — шкала скопируется для вставки в «Параметры шкалы» ЛираСАПР."
     >
       <div className="arm-toolbar">
-        <input
-          className="arm-search"
-          type="search"
-          placeholder="Поиск: s200d16, стены, B6…"
-          value={q}
-          onChange={(e) => setQ(e.target.value)}
-        />
-        <p className="arm-hint">
-          Кнопка «Копировать блок» кладёт в буфер две колонки через Tab (код и
-          площадь) — тот же формат, что принимает таблица диапазонов ЛираСАПР.
-        </p>
+        <Field label="Показывать">
+          <select
+            value={filter}
+            onChange={(e) => setFilter(e.target.value as FilterId)}
+          >
+            {FILTERS.map((f) => (
+              <option key={f.id} value={f.id}>
+                {f.label}
+              </option>
+            ))}
+          </select>
+        </Field>
       </div>
 
-      {filtered.map(([section, list]) => (
-        <section key={section} className="arm-section">
-          <h3 className="arm-section-title">{section}</h3>
-          <div className="arm-blocks">
-            {list.map((block) => (
-              <article key={block.id} className="arm-block">
-                <header className="arm-block-head">
-                  <div>
-                    <h4 className="arm-block-title">{block.title}</h4>
-                    <span className="arm-block-range">{block.rangeLabel}</span>
+      {filtered.map(([section, list]) => {
+        const pairs = pairBlocks(section, list)
+
+        return (
+          <section key={section} className="arm-section">
+            {filter === 'all' ? (
+              <h3 className="arm-section-title">{sectionLabel(section)}</h3>
+            ) : null}
+
+            <div className="arm-pairs">
+              {pairs.map(([left, right], i) => (
+                <div
+                  key={`${left?.id ?? 'x'}-${right?.id ?? 'y'}-${i}`}
+                  className="arm-pair-row"
+                >
+                  <div className="arm-pair-cell">
+                    {left ? (
+                      <BlockCard
+                        block={left}
+                        copied={copiedId === left.id}
+                        onCopy={(b) => void copyBlock(b)}
+                      />
+                    ) : null}
                   </div>
-                  <button
-                    type="button"
-                    className="arm-copy-btn"
-                    onClick={() => void copyBlock(block)}
-                  >
-                    {copiedId === block.id
-                      ? 'Скопировано'
-                      : 'Копировать блок для ЛираСАПР'}
-                  </button>
-                </header>
-                <div className="arm-table-wrap">
-                  <table className="arm-table">
-                    <thead>
-                      <tr>
-                        <th>Шкала</th>
-                        <th>Площадь</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {block.entries.map((e, i) => (
-                        <tr key={`${block.id}-${i}`}>
-                          <td className="arm-code">{e.code}</td>
-                          <td className="arm-area">{formatArea(e.area)}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                  <div className="arm-pair-cell">
+                    {right ? (
+                      <BlockCard
+                        block={right}
+                        copied={copiedId === right.id}
+                        onCopy={(b) => void copyBlock(b)}
+                      />
+                    ) : null}
+                  </div>
                 </div>
-              </article>
-            ))}
-          </div>
-        </section>
-      ))}
+              ))}
+            </div>
+          </section>
+        )
+      })}
     </SheetShell>
   )
 }

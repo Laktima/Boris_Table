@@ -2,10 +2,10 @@ import { useState } from 'react'
 import { Tabs } from './components/Tabs'
 import { Calculator } from './components/Calculator'
 import { Footer } from './components/Footer'
-import { SHEETS } from './sheets'
+import { DEFAULT_SHEET_ID, SHEETS } from './sheets'
 
 export default function App() {
-  const [active, setActive] = useState(SHEETS[0].id)
+  const [active, setActive] = useState(DEFAULT_SHEET_ID)
   const sheet = SHEETS.find((s) => s.id === active) ?? SHEETS[0]
 
   return (
