@@ -21,7 +21,7 @@ import {
 } from './CheckSheets'
 
 export const SHEETS: { id: string; label: string; render: () => ReactNode }[] = [
-  { id: 'e-betona', label: 'Е бетона', render: () => <EBetonaSheet /> },
+  { id: 'e-betona', label: 'Харк-ти бетона', render: () => <EBetonaSheet /> },
   { id: 'arm-shkal', label: 'Арм шкал', render: () => <ArmShkalSheet /> },
   { id: 'pct-arm', label: '% арм', render: () => <PctArmSheet /> },
   { id: 'progib', label: 'Прогиб', render: () => <ProgibSheet /> },

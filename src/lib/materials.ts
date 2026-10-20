@@ -63,6 +63,8 @@ export function ceilingMath(n: number, significance = 1): number {
 export function formatNum(n: number, digits = 3): string {
   if (!Number.isFinite(n)) return '—'
   const s = n.toFixed(digits)
+  // Не трогаем целые («30000»), убираем только хвостовые нули после точки
+  if (!s.includes('.')) return s
   return s.replace(/\.?0+$/, '') || '0'
 }
 

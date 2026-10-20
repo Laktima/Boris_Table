@@ -24,6 +24,15 @@ function isTypingTarget(el: EventTarget | null): boolean {
   return Boolean(el.closest('input, textarea, select, [contenteditable="true"]'))
 }
 
+/** Число из буфера: пробелы ок, запятая → точка */
+function parsePastedNumber(raw: string): string | null {
+  const trimmed = raw.trim().replace(/\s/g, '').replace(',', '.')
+  if (!/^-?\d+(\.\d+)?$/.test(trimmed)) return null
+  const n = Number(trimmed)
+  if (!Number.isFinite(n)) return null
+  return formatResult(n)
+}
+
 export function Calculator() {
   const [expr, setExpr] = useState('')
   const [display, setDisplay] = useState('0')
@@ -74,6 +83,19 @@ export function Calculator() {
     }
   }, [])
 
+  const setFromPaste = useCallback((raw: string) => {
+    const num = parsePastedNumber(raw)
+    if (num !== null) {
+      setExpr(num)
+      setDisplay(num)
+      setError('')
+      return
+    }
+    setExpr('')
+    setDisplay('0')
+    setError('ошибка!')
+  }, [])
+
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       if (isTypingTarget(e.target)) return
@@ -114,7 +136,6 @@ export function Calculator() {
         clear()
         return
       }
-      // Numpad operators sometimes come as different codes
       if (e.code === 'NumpadMultiply') {
         e.preventDefault()
         append('*')
@@ -136,9 +157,22 @@ export function Calculator() {
       }
     }
 
+    const onPaste = (e: ClipboardEvent) => {
+      // В полях ввода (комментарии чек-листов и т.п.) — обычная вставка
+      if (isTypingTarget(e.target)) return
+      const text = e.clipboardData?.getData('text/plain') ?? ''
+      if (!text) return
+      e.preventDefault()
+      setFromPaste(text)
+    }
+
     window.addEventListener('keydown', onKeyDown)
-    return () => window.removeEventListener('keydown', onKeyDown)
-  }, [append, backspace, clear, equals])
+    window.addEventListener('paste', onPaste)
+    return () => {
+      window.removeEventListener('keydown', onKeyDown)
+      window.removeEventListener('paste', onPaste)
+    }
+  }, [append, backspace, clear, equals, setFromPaste])
 
   const useHist = (item: HistItem) => {
     setExpr(item.result)
@@ -175,7 +209,7 @@ export function Calculator() {
         <div className="calc-expr">{error || expr || ' '}</div>
         <div className="calc-value">{display}</div>
       </div>
-      <p className="calc-hint">Клавиатура: цифры, + − × ÷ ( ) Enter Esc</p>
+      <p className="calc-hint">Клавиатура · вставка числа (⌘/Ctrl+V)</p>
       <div className="calc-grid">
         {keys.map((k, i) => (
           <button

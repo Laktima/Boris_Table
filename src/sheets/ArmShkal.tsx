@@ -1,168 +1,129 @@
 import { useMemo, useState } from 'react'
-import arm from '../data/arm-shkal.json'
+import {
+  blockToLiraClipboard,
+  parseArmScaleBlocks,
+  type ScaleBlock,
+} from '../lib/armScales'
 import { SheetShell } from './shared'
 
-const SCALE_RE = /^s\d+d\d+/i
-
-type ScaleRow = {
-  code: string
-  area: string
-  group: string
-}
-
-function extractScales(aoa: unknown[][]): ScaleRow[] {
-  const rows: ScaleRow[] = []
-  let group = 'Шкала'
-  let headers: (string | null)[] = []
-
-  for (const raw of aoa) {
-    const row = raw as unknown[]
-    const nonEmpty = row
-      .map((v, i) => ({ i, v }))
-      .filter(({ v }) => v !== null && v !== undefined && v !== '')
-
-    // Section / group titles (few text cells, no scale codes)
-    const texts = nonEmpty.filter(({ v }) => typeof v === 'string' && !SCALE_RE.test(String(v)))
-    const hasScale = nonEmpty.some(({ v }) => typeof v === 'string' && SCALE_RE.test(String(v)))
-
-    if (!hasScale && texts.length > 0 && texts.length <= 4) {
-      const title = texts.map(({ v }) => String(v)).join(' · ')
-      if (title.length > 2 && !/^Sсм/i.test(title)) {
-        group = title.replace(/\r\n/g, ' ')
-        headers = row.map((v) => (typeof v === 'string' ? v : null))
-      }
-      continue
-    }
-
-    if (!hasScale) {
-      // column headers like "Фон ф16 шаг 250"
-      if (texts.length >= 1) {
-        headers = row.map((v) => (typeof v === 'string' ? v : null))
-      }
-      continue
-    }
-
-    for (let i = 0; i < row.length; i++) {
-      const v = row[i]
-      if (typeof v !== 'string' || !SCALE_RE.test(v)) continue
-      const next = row[i + 1] ?? row[i + 2]
-      const area =
-        typeof next === 'number'
-          ? String(next)
-          : typeof next === 'string' && /^-?\d/.test(next)
-            ? next
-            : ''
-      const colHeader = headers[i] ?? ''
-      rows.push({
-        code: v.trim(),
-        area,
-        group: colHeader ? `${group} / ${colHeader}` : group,
-      })
-    }
-  }
-
-  // unique by code+group
-  const seen = new Set<string>()
-  return rows.filter((r) => {
-    const k = `${r.group}::${r.code}`
-    if (seen.has(k)) return false
-    seen.add(k)
-    return true
-  })
-}
-
-async function copyText(text: string) {
-  try {
-    await navigator.clipboard.writeText(text)
-    return true
-  } catch {
-    const ta = document.createElement('textarea')
-    ta.value = text
-    ta.style.position = 'fixed'
-    ta.style.left = '-9999px'
-    document.body.appendChild(ta)
-    ta.select()
-    const ok = document.execCommand('copy')
-    document.body.removeChild(ta)
-    return ok
-  }
+function formatArea(v: number | null): string {
+  if (v == null || !Number.isFinite(v)) return '—'
+  return String(v).replace(',', '.')
 }
 
 export function ArmShkalSheet() {
-  const scales = useMemo(() => extractScales(arm.aoa as unknown[][]), [])
-  const [q, setQ] = useState('')
-  const [copied, setCopied] = useState<string | null>(null)
-  const [groupFilter, setGroupFilter] = useState('Все')
+  const blocks = useMemo(() => parseArmScaleBlocks(), [])
+  const sections = useMemo(() => {
+    const map = new Map<string, ScaleBlock[]>()
+    for (const b of blocks) {
+      const list = map.get(b.section) ?? []
+      list.push(b)
+      map.set(b.section, list)
+    }
+    return [...map.entries()]
+  }, [blocks])
 
-  const groups = useMemo(() => {
-    const set = new Set(scales.map((s) => s.group.split(' / ')[0]))
-    return ['Все', ...Array.from(set)]
-  }, [scales])
+  const [copiedId, setCopiedId] = useState<string | null>(null)
+  const [q, setQ] = useState('')
 
   const filtered = useMemo(() => {
     const needle = q.trim().toLowerCase()
-    return scales.filter((s) => {
-      if (groupFilter !== 'Все' && !s.group.startsWith(groupFilter)) return false
-      if (!needle) return true
-      return s.code.toLowerCase().includes(needle) || s.group.toLowerCase().includes(needle)
-    })
-  }, [scales, q, groupFilter])
+    if (!needle) return sections
+    return sections
+      .map(([section, list]) => [
+        section,
+        list.filter(
+          (b) =>
+            b.title.toLowerCase().includes(needle) ||
+            b.rangeLabel.toLowerCase().includes(needle) ||
+            b.entries.some((e) => e.code.toLowerCase().includes(needle)),
+        ),
+      ] as const)
+      .filter(([, list]) => list.length > 0)
+  }, [sections, q])
 
-  const onCopy = async (code: string) => {
-    const ok = await copyText(code)
-    if (ok) {
-      setCopied(code)
-      window.setTimeout(() => setCopied((c) => (c === code ? null : c)), 1600)
+  async function copyBlock(block: ScaleBlock) {
+    const text = blockToLiraClipboard(block)
+    try {
+      await navigator.clipboard.writeText(text)
+      setCopiedId(block.id)
+      window.setTimeout(() => setCopiedId(null), 1800)
+    } catch {
+      // fallback
+      const ta = document.createElement('textarea')
+      ta.value = text
+      document.body.appendChild(ta)
+      ta.select()
+      document.execCommand('copy')
+      document.body.removeChild(ta)
+      setCopiedId(block.id)
+      window.setTimeout(() => setCopiedId(null), 1800)
     }
   }
 
   return (
     <SheetShell
       title="Арм шкал"
-      subtitle="Клик по коду копирует шкалу в буфер — вставьте в ЛираСАПР (Ctrl/⌘+V)."
+      subtitle="Блоки шкал как в Excel — копируйте целиком и вставляйте в «Параметры шкалы» ЛираСАПР (вкладка Диапазоны)."
     >
-      <div className="toolbar">
+      <div className="arm-toolbar">
         <input
-          className="search-input"
-          style={{ maxWidth: 280 }}
-          placeholder="Поиск: s250d20…"
+          className="arm-search"
+          type="search"
+          placeholder="Поиск: s200d16, стены, B6…"
           value={q}
           onChange={(e) => setQ(e.target.value)}
         />
-        <span className="badge">{filtered.length}</span>
-        {copied && <span className="copy-toast">Скопировано: {copied}</span>}
+        <p className="arm-hint">
+          Кнопка «Копировать блок» кладёт в буфер две колонки через Tab (код и
+          площадь) — тот же формат, что принимает таблица диапазонов ЛираСАПР.
+        </p>
       </div>
 
-      <div className="pill-row">
-        {groups.map((g) => (
-          <button
-            key={g}
-            type="button"
-            className={`pill ${groupFilter === g ? 'active' : ''}`}
-            onClick={() => setGroupFilter(g)}
-          >
-            {g}
-          </button>
-        ))}
-      </div>
-
-      <div className="scale-grid">
-        {filtered.map((s) => (
-          <button
-            key={`${s.group}-${s.code}`}
-            type="button"
-            className={`scale-chip ${copied === s.code ? 'copied' : ''}`}
-            onClick={() => onCopy(s.code)}
-            title={`Копировать «${s.code}» для ЛираСАПР`}
-          >
-            <code className="scale-code">{s.code}</code>
-            <span className="scale-meta">
-              {s.area ? `${s.area} см²` : '—'}
-              <span className="scale-group">{s.group}</span>
-            </span>
-          </button>
-        ))}
-      </div>
+      {filtered.map(([section, list]) => (
+        <section key={section} className="arm-section">
+          <h3 className="arm-section-title">{section}</h3>
+          <div className="arm-blocks">
+            {list.map((block) => (
+              <article key={block.id} className="arm-block">
+                <header className="arm-block-head">
+                  <div>
+                    <h4 className="arm-block-title">{block.title}</h4>
+                    <span className="arm-block-range">{block.rangeLabel}</span>
+                  </div>
+                  <button
+                    type="button"
+                    className="arm-copy-btn"
+                    onClick={() => void copyBlock(block)}
+                  >
+                    {copiedId === block.id
+                      ? 'Скопировано'
+                      : 'Копировать блок для ЛираСАПР'}
+                  </button>
+                </header>
+                <div className="arm-table-wrap">
+                  <table className="arm-table">
+                    <thead>
+                      <tr>
+                        <th>Шкала</th>
+                        <th>Площадь</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {block.entries.map((e, i) => (
+                        <tr key={`${block.id}-${i}`}>
+                          <td className="arm-code">{e.code}</td>
+                          <td className="arm-area">{formatArea(e.area)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
+      ))}
     </SheetShell>
   )
 }
