@@ -11,6 +11,7 @@
     "extract": "node scripts/extract-xlsx.mjs"
   },
   "dependencies": {
+    "exceljs": "^4.4.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "xlsx": "^0.18.5"
