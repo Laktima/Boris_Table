@@ -47,8 +47,8 @@ function sheet(
 }
 
 export const SHEETS: SheetDef[] = [
-  sheet('e-betona', 'Харк-ти бетона', () => <EBetonaSheet />),
-  sheet('arm-shkal', 'Арм шкал', () => <ArmShkalSheet />),
+  sheet('e-betona', 'Харак-ки бетона', () => <EBetonaSheet />, true),
+  sheet('arm-shkal', 'Арм шкал', () => <ArmShkalSheet />, true),
   sheet('pct-arm', '% арм', () => <PctArmSheet />),
   sheet('progib', 'Прогиб', () => <ProgibSheet />),
   sheet('fi3', 'Фи3Раскрепление', () => <Fi3Sheet />),

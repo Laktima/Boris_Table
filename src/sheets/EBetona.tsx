@@ -92,7 +92,7 @@ export function EBetonaSheet() {
 
   return (
     <SheetShell
-      title="Харк-ти бетона"
+      title="Харак-ки бетона"
       subtitle="Модули упругости, характеристики бетона и сортамент арматуры"
     >
       <div className="form-grid">
