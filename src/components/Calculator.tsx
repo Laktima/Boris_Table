@@ -209,7 +209,6 @@ export function Calculator() {
         <div className="calc-expr">{error || expr || ' '}</div>
         <div className="calc-value">{display}</div>
       </div>
-      <p className="calc-hint">Клавиатура · вставка числа (⌘/Ctrl+V)</p>
       <div className="calc-grid">
         {keys.map((k, i) => (
           <button

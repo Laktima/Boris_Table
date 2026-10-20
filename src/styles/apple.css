@@ -263,13 +263,6 @@ textarea {
   grid-column: span 2;
 }
 
-.calc-hint {
-  margin: 0 0 10px;
-  font-size: 11px;
-  color: var(--text-secondary);
-  text-align: center;
-}
-
 .calc-history {
   margin-top: 12px;
   border-top: 1px solid var(--border);
@@ -481,10 +474,6 @@ textarea {
 .hist-empty {
   font-size: 12px;
   color: var(--text-secondary);
-}
-
-.calc-mobile-toggle {
-  display: none;
 }
 
 /* Forms & tables */
@@ -748,7 +737,12 @@ textarea {
   border-color: var(--text);
 }
 
-/* —— Mobile: full-width content, no calculator —— */
+/* —— Mobile / tablet: full-width content, no calculator —— */
+.layout-mobile {
+  grid-template-columns: 1fr;
+  gap: 0;
+}
+
 @media (max-width: 980px) {
   .header-inner {
     padding: 14px 14px 0;
@@ -767,27 +761,22 @@ textarea {
   }
 
   .tabs {
-    gap: 2px;
+    gap: 4px 2px;
     margin: 0;
-    padding: 0 0 10px;
+    padding: 0 0 12px;
     overflow: visible;
   }
 
   .tab {
-    padding: 8px 12px;
+    padding: 7px 11px;
     font-size: 12px;
   }
 
-  .layout {
+  .layout,
+  .layout-mobile {
     grid-template-columns: 1fr;
     gap: 0;
     padding: 12px 12px 0;
-  }
-
-  /* Hide calculator on phones/tablets */
-  .sidebar,
-  .calc-mobile-toggle {
-    display: none !important;
   }
 
   .sheet-panel {
@@ -798,6 +787,16 @@ textarea {
 
   .sheet-panel h2 {
     font-size: 19px;
+  }
+
+  .sheet-panel .subtitle {
+    font-size: 13px;
+    margin-bottom: 16px;
+  }
+
+  .coming-soon {
+    font-size: 16px;
+    padding: 40px 12px;
   }
 
   .form-grid {
@@ -815,6 +814,10 @@ textarea {
     font-size: 16px;
   }
 
+  .arm-toolbar .field {
+    max-width: none;
+  }
+
   .arm-pair-row {
     grid-template-columns: 1fr;
   }
@@ -823,9 +826,14 @@ textarea {
     grid-template-columns: 1fr;
   }
 
+  .arm-section {
+    margin-top: 20px;
+  }
+
   .table-wrap {
-    max-height: 55vh;
+    max-height: none;
     margin: 0 -4px;
+    overflow-x: auto;
   }
 
   .data-table {
@@ -837,12 +845,27 @@ textarea {
     padding: 6px 8px;
   }
 
+  .toolbar {
+    gap: 8px;
+  }
+
+  .toolbar .pill,
+  .toolbar .pill-accent {
+    flex: 1 1 auto;
+    text-align: center;
+    justify-content: center;
+  }
+
   .check-item {
     padding: 10px 12px;
   }
 
   .check-item .title {
     font-size: 13px;
+  }
+
+  .check-item textarea {
+    font-size: 14px;
   }
 
   .download-btn {
@@ -855,14 +878,8 @@ textarea {
   }
 
   .pill-row {
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    padding-bottom: 4px;
-  }
-
-  .pill {
-    flex: 0 0 auto;
+    flex-wrap: wrap;
+    gap: 8px;
   }
 }
 
@@ -876,11 +893,17 @@ textarea {
     padding: 12px 10px 0;
   }
 
-  .layout {
+  .layout,
+  .layout-mobile {
     padding: 10px 10px 0;
   }
 
   .sheet-panel {
     padding: 14px;
+  }
+
+  .tab {
+    padding: 6px 10px;
+    font-size: 11px;
   }
 }
