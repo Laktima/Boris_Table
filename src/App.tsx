@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Tabs } from './components/Tabs'
 import { Calculator } from './components/Calculator'
-import { Footer } from './components/Footer'
 import { DEFAULT_SHEET_ID, SHEETS } from './sheets'
 
 const DESKTOP_MQ = '(min-width: 981px)'
@@ -52,7 +51,6 @@ export default function App() {
         ) : null}
       </div>
 
-      <Footer />
     </div>
   )
 }
