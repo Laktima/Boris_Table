@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
 import { Tabs } from './components/Tabs'
 import { Calculator } from './components/Calculator'
+import { MiniSheet } from './components/MiniSheet'
+import { persistKey, usePersistedState } from './lib/persist'
 import { DEFAULT_SHEET_ID, SHEETS } from './sheets'
 
 const DESKTOP_MQ = '(min-width: 981px)'
@@ -22,8 +24,14 @@ function useIsDesktop() {
 }
 
 export default function App() {
-  const [active, setActive] = useState(DEFAULT_SHEET_ID)
-  const sheet = SHEETS.find((s) => s.id === active) ?? SHEETS[0]
+  const [active, setActive] = usePersistedState(
+    persistKey('active-sheet'),
+    DEFAULT_SHEET_ID,
+  )
+  const sheet =
+    SHEETS.find((s) => s.id === active) ??
+    SHEETS.find((s) => s.id === DEFAULT_SHEET_ID) ??
+    SHEETS[0]
   const isDesktop = useIsDesktop()
 
   return (
@@ -36,7 +44,7 @@ export default function App() {
           </div>
           <Tabs
             tabs={SHEETS.map((s) => ({ id: s.id, label: s.label }))}
-            active={active}
+            active={sheet.id}
             onChange={setActive}
           />
         </div>
@@ -47,6 +55,7 @@ export default function App() {
         {isDesktop ? (
           <aside className="sidebar" aria-label="Калькулятор">
             <Calculator />
+            <MiniSheet />
           </aside>
         ) : null}
       </div>

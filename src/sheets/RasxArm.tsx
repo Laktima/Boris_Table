@@ -1,5 +1,6 @@
-import { useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { REBAR_SORTAMENT, formatNum } from '../lib/materials'
+import { persistKey, usePersistedState } from '../lib/persist'
 import { DataTable, ResultRow } from '../components/DataTable'
 import { Field, SheetShell } from './shared'
 
@@ -62,25 +63,25 @@ function BarEditor({
 }
 
 export function RasxArmSheet() {
-  const [top, setTop] = useState<BarRow[]>([
+  const [top, setTop] = usePersistedState<BarRow[]>(persistKey('rasx', 'top'), [
     { d: 18, n: 2 },
     { d: 12, n: 3 },
     { d: 10, n: 0 },
     { d: 10, n: 0 },
     { d: 10, n: 0 },
   ])
-  const [bot, setBot] = useState<BarRow[]>([
+  const [bot, setBot] = usePersistedState<BarRow[]>(persistKey('rasx', 'bot'), [
     { d: 18, n: 5 },
     { d: 12, n: 3 },
     { d: 10, n: 0 },
     { d: 10, n: 0 },
     { d: 10, n: 0 },
   ])
-  const [distPct, setDistPct] = useState(0.3)
+  const [distPct, setDistPct] = usePersistedState(persistKey('rasx', 'distPct'), 0.3)
   // W6 in excel seems to be a separate "area top for distribution" input - using top total * something
   // From formulas: W6=1.6 (manual?), W7=0.3, W8=W6*W7, W9=W6-W8, W10=2.4 manual bottom?, W11=W8+W10
-  const [AsDistBase, setAsDistBase] = useState(1.6)
-  const [AsBotManual, setAsBotManual] = useState(2.4)
+  const [AsDistBase, setAsDistBase] = usePersistedState(persistKey('rasx', 'AsDistBase'), 1.6)
+  const [AsBotManual, setAsBotManual] = usePersistedState(persistKey('rasx', 'AsBotManual'), 2.4)
 
   const calc = useMemo(() => {
     const AsTop = top.reduce((s, r) => s + areaOf(r.d, r.n), 0)
@@ -96,9 +97,9 @@ export function RasxArmSheet() {
   }, [top, bot, distPct, AsDistBase, AsBotManual])
 
   // split helper: match area with two diameters
-  const [targetAs, setTargetAs] = useState(15.71)
-  const [d1, setD1] = useState(16)
-  const [d2, setD2] = useState(12)
+  const [targetAs, setTargetAs] = usePersistedState(persistKey('rasx', 'targetAs'), 15.71)
+  const [d1, setD1] = usePersistedState(persistKey('rasx', 'd1'), 16)
+  const [d2, setD2] = usePersistedState(persistKey('rasx', 'd2'), 12)
 
   const split = useMemo(() => {
     const a1 = areaOf(d1, 1)

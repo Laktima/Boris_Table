@@ -168,6 +168,129 @@ textarea {
 .sidebar {
   position: sticky;
   top: 120px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* Мини-таблица 4×4 под калькулятором */
+.mini-sheet {
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 12px;
+  overflow: hidden;
+}
+
+.mini-sheet-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.mini-sheet-head h4 {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 650;
+  color: var(--text-secondary);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.mini-sheet-hint {
+  font-size: 11px;
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.mini-sheet.is-picking {
+  box-shadow: 0 0 0 2px rgba(0, 113, 227, 0.35), var(--shadow);
+}
+
+.mini-sheet.is-picking .mini-sheet-hint {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.mini-sheet.is-picking .mini-sheet-cell {
+  cursor: cell;
+}
+
+.mini-sheet-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.mini-sheet-table th,
+.mini-sheet-table td {
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  height: 28px;
+  padding: 0;
+}
+
+.mini-sheet-table thead th,
+.mini-sheet-table tbody th {
+  background: rgba(242, 242, 247, 0.95);
+  color: var(--text-secondary);
+  font-weight: 600;
+  text-align: center;
+  width: 22px;
+}
+
+.mini-sheet-corner {
+  background: transparent !important;
+  border-color: transparent !important;
+}
+
+.mini-sheet-cell {
+  appearance: none;
+  display: block;
+  width: 100%;
+  height: 28px;
+  border: none;
+  background: #fff;
+  padding: 0 4px;
+  margin: 0;
+  font: inherit;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  color: var(--text);
+  cursor: cell;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mini-sheet-cell:hover {
+  background: rgba(0, 113, 227, 0.06);
+}
+
+.mini-sheet-input {
+  display: block;
+  width: 100%;
+  height: 28px;
+  border: 2px solid var(--accent);
+  background: #fff;
+  padding: 0 3px;
+  margin: 0;
+  font: inherit;
+  font-variant-numeric: tabular-nums;
+  text-align: left;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.mini-sheet-table td.is-error .mini-sheet-cell {
+  color: #c62828;
+  font-weight: 600;
 }
 
 .footer {
@@ -582,6 +705,51 @@ textarea {
   background: rgba(0, 113, 227, 0.04);
 }
 
+.data-table-vborders th,
+.data-table-vborders td {
+  border-right: 1px solid var(--border);
+}
+
+.data-table-vborders th:last-child,
+.data-table-vborders td:last-child {
+  border-right: none;
+}
+
+.data-table-striped tbody tr:not(.is-header):nth-child(even) td {
+  background: #f3f3f5;
+}
+
+.data-table-striped tbody tr:not(.is-header):nth-child(odd) td {
+  background: #fff;
+}
+
+.data-table-striped tbody tr.is-header td {
+  background: #e8e8ed;
+  font-weight: 600;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.data-table-striped tbody tr:not(.is-header):hover td {
+  background: rgba(0, 113, 227, 0.1);
+}
+
+.data-table-numbered td.col-num {
+  width: 3rem;
+  min-width: 2.5rem;
+  max-width: 4rem;
+  text-align: center;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-secondary);
+  vertical-align: top;
+}
+
+.data-table-numbered tr.is-header td.col-num {
+  color: var(--text);
+}
+
 .data-table-copy .cell-copy {
   display: block;
   width: 100%;
@@ -737,6 +905,897 @@ textarea {
   border-color: var(--text);
 }
 
+/* —— Excel-like panels (Qb, Анкер) —— */
+.xl-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px 20px;
+  margin-bottom: 18px;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.xl-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.xl-swatch {
+  width: 18px;
+  height: 14px;
+  border-radius: 3px;
+  border: 1px solid var(--border);
+  display: inline-block;
+}
+
+.xl-swatch-input {
+  background: #ddebf7;
+}
+
+.xl-swatch-select {
+  background: #e2d5f1;
+}
+
+.xl-swatch-result {
+  background: #c6efce;
+}
+
+.xl-card {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 16px 18px;
+  margin-bottom: 14px;
+}
+
+.xl-card-title {
+  margin: 0 0 14px;
+  font-size: 15px;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+}
+
+.xl-card-title-muted {
+  background: #d8d8d8;
+  margin: -16px -18px 14px;
+  padding: 10px 18px;
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+  font-size: 14px;
+}
+
+.xl-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 12px 14px;
+}
+
+.xl-grid-1 {
+  grid-template-columns: 1fr;
+}
+
+.field input.xl-input,
+.field select.xl-select,
+input.xl-input,
+select.xl-select {
+  background: #ddebf7;
+  border-color: #b7d3ea;
+}
+
+.field select.xl-select,
+select.xl-select {
+  background: #e2d5f1;
+  border-color: #c9b6df;
+}
+
+.xl-readonly {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px 10px;
+  background: #f5f5f7;
+  border-radius: 8px;
+}
+
+.xl-readonly-label {
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.xl-readonly-value {
+  font-size: 16px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.xl-readonly-value small,
+.xl-kv small,
+.xl-result-val small {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.xl-hint {
+  display: block;
+  font-size: 11px;
+  color: var(--text-secondary);
+  line-height: 1.35;
+  margin-top: 2px;
+}
+
+.xl-field-tip {
+  margin: 6px 0 0;
+  font-size: 11px;
+  line-height: 1.4;
+  color: var(--text-secondary);
+}
+
+.xl-kv-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.xl-kv {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  padding: 8px 10px;
+  background: #fafafa;
+  border-radius: 8px;
+  font-size: 13px;
+}
+
+.xl-kv span {
+  color: var(--text-secondary);
+}
+
+.xl-kv strong {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.xl-results-table {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.xl-result-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  background: #f5f5f7;
+  border-radius: 10px;
+}
+
+.xl-result-row .xl-hint {
+  margin-top: 4px;
+}
+
+.xl-result-val {
+  font-size: 18px;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.xl-result-primary {
+  background: #c6efce;
+  border: 1px solid #a9d9b5;
+}
+
+.qb-sheet {
+  padding-top: 18px;
+}
+
+.qb-title {
+  margin: 0 0 16px;
+  font-size: 22px;
+  letter-spacing: -0.02em;
+}
+
+.qb-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 0.95fr) minmax(260px, 340px);
+  gap: 16px;
+  align-items: start;
+}
+
+.qb-main {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+}
+
+.qb-card {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+}
+
+.qb-card-title {
+  margin: 0 0 10px;
+  font-size: 14px;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+}
+
+.qb-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px 10px;
+}
+
+.qb-fields .field label {
+  margin-bottom: 4px;
+  font-size: 11px;
+}
+
+.qb-fields .field input,
+.qb-fields .field select,
+.qb-in,
+.qb-sel {
+  padding: 8px 10px;
+  font-size: 13px;
+}
+
+/* цвета как на вкладке Интерполяция / калькулятор */
+.qb-in {
+  background: rgba(242, 242, 247, 0.95) !important;
+  border-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+.qb-sel {
+  background: rgba(209, 209, 214, 0.75) !important;
+  border-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+.qb-ro {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 6px 10px;
+  background: rgba(209, 209, 214, 0.4);
+  border-radius: 8px;
+  justify-content: center;
+}
+
+.qb-ro-label {
+  font-size: 11px;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.qb-ro-val {
+  font-size: 14px;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+}
+
+.qb-ro-val small,
+.qb-kv small,
+.qb-result-num small {
+  font-size: 11px;
+  font-weight: 500;
+  opacity: 0.75;
+}
+
+.qb-kv-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.qb-kv {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 10px;
+  padding: 7px 10px;
+  background: rgba(255, 159, 10, 0.22);
+  border-radius: 8px;
+  font-size: 12px;
+}
+
+.qb-kv span {
+  color: var(--text-secondary);
+}
+
+.qb-kv strong {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.qb-aside {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  position: sticky;
+  top: 120px;
+}
+
+.qb-figure {
+  margin: 0;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px;
+}
+
+.qb-figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.qb-results {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.qb-result-btn {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  text-align: left;
+  border: 2px solid rgba(209, 209, 214, 0.9);
+  background: rgba(242, 242, 247, 0.95);
+  border-radius: 12px;
+  padding: 10px 12px;
+  cursor: pointer;
+  font: inherit;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.qb-result-btn.primary {
+  background: rgba(0, 113, 227, 0.88);
+  border-color: rgba(0, 113, 227, 0.95);
+  color: #fff;
+}
+
+.qb-result-btn.primary .qb-result-meta small {
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.qb-result-btn:hover {
+  background: #1d1d1f;
+  border-color: #1d1d1f;
+  color: #fff;
+}
+
+.qb-result-btn:hover .qb-result-meta small {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.qb-result-btn.copied {
+  background: #3a3a3c;
+  border-color: #3a3a3c;
+  color: #fff;
+}
+
+.qb-result-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.qb-result-meta strong {
+  font-size: 13px;
+}
+
+.qb-result-meta small {
+  font-size: 11px;
+  color: var(--text-secondary);
+  line-height: 1.3;
+}
+
+.qb-result-num {
+  font-size: 16px;
+  font-weight: 750;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.qb-copy-bar {
+  margin-top: 16px;
+  text-align: center;
+}
+
+.anker-layout {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-rows: auto auto auto;
+  gap: 14px;
+  align-items: stretch;
+}
+
+/* три строки общей сетки: верх | 100%↔скобка | итоги */
+.anker-col {
+  display: grid;
+  grid-template-rows: subgrid;
+  grid-row: span 3;
+  gap: 14px;
+  min-width: 0;
+}
+
+.anker-col > .xl-card {
+  margin-bottom: 0;
+  height: 100%;
+}
+
+.anker-usage-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 28px;
+  gap: 6px;
+  align-items: center;
+  align-self: center;
+}
+
+.anker-usage {
+  background: #fff;
+  border: 1px solid var(--border);
+}
+
+.anker-lan {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.anker-row-spacer {
+  min-height: 0;
+}
+
+.anker-block-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.anker-block-head .xl-card-title {
+  margin: 0;
+}
+
+.anker-flow-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  font-weight: 500;
+  line-height: 1;
+  color: #1d1d1f;
+  user-select: none;
+}
+
+.anker-arrow-to-lan {
+  font-size: 26px;
+  color: #c62828;
+}
+
+.anker-arrow-to-nakhl {
+  font-size: 32px;
+  color: #1d1d1f;
+  margin-top: -2px;
+  flex-shrink: 0;
+}
+
+.anker-subhead {
+  margin: 0 0 10px;
+  font-size: 13px;
+  font-weight: 650;
+}
+
+/* фигурная скобка как leftBrace в Excel */
+.anker-brace-group {
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr);
+  gap: 6px;
+  align-items: stretch;
+}
+
+.anker-brace {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 72px;
+  font-weight: 200;
+  line-height: 0.85;
+  color: #8e8e93;
+  user-select: none;
+  transform: scaleY(1.05);
+}
+
+.anker-copy-val {
+  appearance: none;
+  border: none;
+  background: transparent;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+  color: inherit;
+  text-align: right;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: background 0.12s, color 0.12s;
+}
+
+.anker-copy-val:not(.anker-final):hover {
+  background: rgba(0, 113, 227, 0.1);
+  color: var(--accent);
+}
+
+.anker-copy-val:not(.anker-final).copied {
+  background: rgba(52, 199, 89, 0.15);
+  color: #1b7a3a;
+}
+
+.anker-copy-val small {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.anker-usage .anker-copy-val {
+  text-align: left;
+  font-size: 16px;
+  font-weight: 600;
+  display: inline-block;
+  padding: 2px 4px;
+}
+
+.anker-final {
+  margin-top: 0;
+  padding: 14px 16px;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 6px;
+  width: 100%;
+  box-sizing: border-box;
+  text-align: left;
+  cursor: pointer;
+  transition: filter 0.12s, background 0.12s;
+}
+
+.anker-final:hover {
+  filter: brightness(0.97);
+}
+
+.anker-final.copied {
+  outline: 2px solid rgba(52, 199, 89, 0.45);
+}
+
+.anker-final span {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.anker-final strong {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+.anker-final-blue {
+  background: #ddebf7;
+  border: 1px solid #b7d3ea;
+}
+
+.anker-final-green {
+  background: #c6efce;
+  border: 1px solid #a9d9b5;
+}
+
+.anker-copy-bar {
+  margin: 12px 0 4px;
+  text-align: center;
+}
+
+.anker-ref-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.anker-ref-head h3 {
+  margin: 0;
+}
+
+.anker-ref-head .pill-row {
+  margin: 0;
+}
+
+.anker-ref-table .col-nakhl,
+.anker-ref-table .col-nakhl-sub {
+  background: #bdd7ee;
+}
+
+.anker-ref-table .col-anker,
+.anker-ref-table .col-anker-sub {
+  background: #fff2cc;
+}
+
+.anker-ref-table .col-styk,
+.anker-ref-table .col-styk-sub {
+  background: #9dc3e6;
+}
+
+.anker-ref-table th {
+  text-align: center;
+  white-space: normal;
+  line-height: 1.25;
+  font-size: 12px;
+}
+
+.anker-ref-table td {
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  padding: 0;
+}
+
+.anker-ref-copy {
+  appearance: none;
+  display: block;
+  width: 100%;
+  border: none;
+  background: transparent;
+  padding: 8px 10px;
+  margin: 0;
+  font: inherit;
+  font-variant-numeric: tabular-nums;
+  color: inherit;
+  text-align: center;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background 0.12s, color 0.12s;
+}
+
+.anker-ref-copy:hover {
+  background: rgba(0, 113, 227, 0.12);
+  color: var(--accent);
+}
+
+.anker-ref-copy.copied {
+  background: rgba(52, 199, 89, 0.18);
+  color: #1b7a3a;
+}
+
+.anker-ref-table tbody tr:nth-child(odd) td {
+  background: #fff;
+}
+
+.anker-ref-table tbody tr:nth-child(even) td {
+  background: #f3f3f5;
+}
+
+.anker-ref-table tbody tr:hover td {
+  background: rgba(0, 113, 227, 0.1);
+}
+
+.anker-ref-table tr.is-active-d td {
+  background: rgba(0, 113, 227, 0.08);
+  font-weight: 600;
+}
+
+.anker-ref-table tr.is-active-d:hover td {
+  background: rgba(0, 113, 227, 0.14);
+}
+
+/* —— Интерполяция: сетка Excel, цвета калькулятора —— */
+.interp-sheet {
+  padding-top: 20px;
+  display: flex;
+  flex-direction: column;
+  min-height: 420px;
+}
+
+.interp-block {
+  margin-bottom: 36px;
+  display: flex;
+  justify-content: flex-start;
+}
+
+.interp-unit {
+  display: grid;
+  width: fit-content;
+  max-width: 100%;
+  column-gap: 0;
+  row-gap: 14px;
+}
+
+/* 4 узких→широких столбца; заголовок над 3-м (результат) */
+.interp-unit-double {
+  grid-template-columns: repeat(4, 110px);
+}
+
+.interp-unit-double .interp-heading {
+  grid-column: 3;
+  justify-self: center;
+  width: max-content;
+}
+
+.interp-unit-double .interp-grid {
+  grid-column: 1 / -1;
+}
+
+/* Как у двойной: пустой столбец слева, заголовок и результат в 3-й колонке */
+.interp-unit-single {
+  grid-template-columns: repeat(3, 110px);
+}
+
+.interp-unit-single .interp-heading {
+  grid-column: 3;
+  justify-self: center;
+  width: max-content;
+}
+
+.interp-unit-single .interp-grid {
+  grid-column: 2 / 4;
+}
+
+.interp-heading {
+  margin: 0;
+  text-align: center;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  color: var(--text);
+  line-height: 1.25;
+  white-space: nowrap;
+}
+
+.interp-heading::after {
+  content: '';
+  display: block;
+  width: 36px;
+  height: 3px;
+  margin: 8px auto 0;
+  border-radius: 980px;
+  background: var(--accent);
+  opacity: 0.85;
+}
+
+.interp-grid {
+  border-collapse: collapse;
+  table-layout: fixed;
+  font-size: 13px;
+  width: 100%;
+}
+
+.interp-grid-double,
+.interp-grid-single {
+  width: 100%;
+}
+
+.interp-grid td {
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  padding: 0;
+  vertical-align: middle;
+  text-align: center;
+  width: 110px;
+  height: 44px;
+}
+
+.interp-empty {
+  border-color: transparent !important;
+  background: transparent !important;
+}
+
+/* ввод (ось + углы) — как calc-btn.fn */
+.interp-axis,
+.interp-in,
+.interp-data {
+  background: rgba(209, 209, 214, 0.85);
+}
+
+.interp-blank {
+  background: rgba(255, 255, 255, 0.6);
+}
+
+/* второстепенные f(x,y1) / f(x,y2) — как calc-btn.op #ff9f0a */
+.interp-mid {
+  background: rgba(255, 159, 10, 0.28);
+}
+
+.interp-mid-val {
+  display: block;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+  font-size: 14px;
+  color: var(--text);
+  padding: 0 4px;
+}
+
+/* результат в центре — как calc-btn.eq */
+.interp-out {
+  background: transparent;
+  border: none !important;
+  padding: 3px;
+}
+
+.interp-result-btn {
+  display: block;
+  width: 100%;
+  height: 42px;
+  border: 2px solid rgba(0, 113, 227, 0.95);
+  background: rgba(0, 113, 227, 0.88);
+  color: #fff;
+  font: inherit;
+  font-size: 16px;
+  font-weight: 750;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+  border-radius: 12px;
+  transition: background 0.15s, filter 0.15s;
+}
+
+.interp-result-btn:hover {
+  background: #1d1d1f;
+  border-color: #1d1d1f;
+  color: #fff;
+}
+
+.interp-result-btn.copied {
+  background: #3a3a3c;
+  border-color: #3a3a3c;
+  color: #fff;
+}
+
+.interp-cell-input {
+  width: 100%;
+  height: 42px;
+  border: none;
+  background: transparent;
+  text-align: center;
+  font: inherit;
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  padding: 0 6px;
+  outline: none;
+  -moz-appearance: textfield;
+}
+
+.interp-copy-bar {
+  margin-top: auto;
+  padding-top: 16px;
+  text-align: center;
+}
+
+.interp-cell-input::-webkit-outer-spin-button,
+.interp-cell-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.interp-cell-input:focus {
+  background: rgba(255, 255, 255, 0.45);
+}
+
 /* —— Mobile / tablet: full-width content, no calculator —— */
 .layout-mobile {
   grid-template-columns: 1fr;
@@ -830,6 +1889,148 @@ textarea {
     margin-top: 20px;
   }
 
+  /* калькулятор и блокнот — только десктоп */
+  .sidebar,
+  .calc,
+  .mini-sheet {
+    display: none !important;
+  }
+
+  .qb-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .qb-aside {
+    position: static;
+  }
+
+  .qb-figure {
+    max-width: 320px;
+    margin: 0 auto;
+  }
+
+  .qb-fields {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .qb-result-btn {
+    min-height: 52px;
+  }
+
+  /* Анкер: как на ПК по смыслу, но столбиком; 100% → скобка рядом по порядку */
+  .anker-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    grid-template-columns: none;
+    grid-template-rows: none;
+  }
+
+  .anker-col {
+    display: contents;
+    grid-row: auto;
+  }
+
+  .anker-inputs {
+    order: 1;
+  }
+
+  .anker-params {
+    order: 2;
+  }
+
+  .anker-usage-row {
+    order: 3;
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: stretch;
+  }
+
+  .anker-arrow-to-lan {
+    transform: rotate(90deg);
+    height: 22px;
+    font-size: 22px;
+  }
+
+  .anker-lan {
+    order: 4;
+  }
+
+  .anker-col-computed > .anker-final {
+    order: 5;
+  }
+
+  .anker-nakhl {
+    order: 6;
+  }
+
+  .anker-col-nakhl > .anker-final {
+    order: 7;
+  }
+
+  .anker-extra {
+    order: 8;
+  }
+
+  .anker-row-spacer {
+    display: none;
+  }
+
+  .anker-arrow-to-nakhl {
+    display: none;
+  }
+
+  .anker-brace {
+    font-size: 56px;
+  }
+
+  .anker-ref-head {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .anker-ref-table-wrap {
+    margin: 0 -4px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .xl-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .interp-sheet {
+    gap: 20px;
+  }
+
+  .interp-heading {
+    font-size: 15px;
+  }
+
+  .interp-unit-double,
+  .interp-unit-single {
+    grid-template-columns: repeat(auto-fit, minmax(0, 110px));
+    justify-content: center;
+  }
+
+  .interp-unit-double {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .interp-unit-single {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    max-width: 280px;
+    margin-inline: auto;
+  }
+
+  .interp-grid td {
+    width: auto;
+  }
+
+  .interp-result-btn {
+    height: 44px;
+    font-size: 15px;
+  }
+
   .table-wrap {
     max-height: none;
     margin: 0 -4px;
@@ -905,5 +2106,27 @@ textarea {
   .tab {
     padding: 6px 10px;
     font-size: 11px;
+  }
+
+  .qb-fields {
+    grid-template-columns: 1fr;
+  }
+
+  .interp-unit-double {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .interp-grid td {
+    height: 40px;
+  }
+
+  .interp-cell-input,
+  .interp-result-btn {
+    height: 38px;
+    font-size: 13px;
+  }
+
+  .anker-final strong {
+    font-size: 18px;
   }
 }

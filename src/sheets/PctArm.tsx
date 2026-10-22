@@ -1,6 +1,7 @@
-import { useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import pct from '../data/pct-arm.json'
 import { rebarAreaMm2, formatNum } from '../lib/materials'
+import { persistKey, usePersistedState } from '../lib/persist'
 import { DataTable, ResultRow } from '../components/DataTable'
 import { Field, SheetShell } from './shared'
 
@@ -19,31 +20,34 @@ function muColumns(lo_h: number): number {
 }
 
 export function PctArmSheet() {
-  const [mode, setMode] = useState<'walls' | 'slabs' | 'columns' | 'area'>('walls')
+  const [mode, setMode] = usePersistedState<'walls' | 'slabs' | 'columns' | 'area'>(
+    persistKey('pct-arm', 'mode'),
+    'walls',
+  )
 
   // walls
-  const [Hw, setHw] = useState(300)
-  const [bw, setBw] = useState(100)
-  const [hw, setHwThick] = useState(30)
-  const [aw, setAw] = useState(5)
+  const [Hw, setHw] = usePersistedState(persistKey('pct-arm', 'Hw'), 300)
+  const [bw, setBw] = usePersistedState(persistKey('pct-arm', 'bw'), 100)
+  const [hw, setHwThick] = usePersistedState(persistKey('pct-arm', 'hw'), 30)
+  const [aw, setAw] = usePersistedState(persistKey('pct-arm', 'aw'), 5)
 
   // slabs
-  const [bs, setBs] = useState(100)
-  const [hs, setHs] = useState(120)
-  const [as1, setAs1] = useState(5)
-  const [as2, setAs2] = useState(5)
+  const [bs, setBs] = usePersistedState(persistKey('pct-arm', 'bs'), 100)
+  const [hs, setHs] = usePersistedState(persistKey('pct-arm', 'hs'), 120)
+  const [as1, setAs1] = usePersistedState(persistKey('pct-arm', 'as1'), 5)
+  const [as2, setAs2] = usePersistedState(persistKey('pct-arm', 'as2'), 5)
 
   // columns
-  const [Hc, setHc] = useState(300)
-  const [bc, setBc] = useState(100)
-  const [hc, setHcThick] = useState(20)
-  const [ac, setAc] = useState(5)
+  const [Hc, setHc] = usePersistedState(persistKey('pct-arm', 'Hc'), 300)
+  const [bc, setBc] = usePersistedState(persistKey('pct-arm', 'bc'), 100)
+  const [hc, setHcThick] = usePersistedState(persistKey('pct-arm', 'hc'), 20)
+  const [ac, setAc] = usePersistedState(persistKey('pct-arm', 'ac'), 5)
 
   // area calc
-  const [secH, setSecH] = useState(1300)
-  const [secB, setSecB] = useState(700)
-  const [secA, setSecA] = useState(70)
-  const [bars, setBars] = useState([
+  const [secH, setSecH] = usePersistedState(persistKey('pct-arm', 'secH'), 1300)
+  const [secB, setSecB] = usePersistedState(persistKey('pct-arm', 'secB'), 700)
+  const [secA, setSecA] = usePersistedState(persistKey('pct-arm', 'secA'), 70)
+  const [bars, setBars] = usePersistedState(persistKey('pct-arm', 'bars'), [
     { d: 40, n: 48 },
     { d: 40, n: 8 },
     { d: 0, n: 0 },
@@ -52,7 +56,7 @@ export function PctArmSheet() {
   ])
 
   // area table by diameter/spacing
-  const [dBar, setDBar] = useState(16)
+  const [dBar, setDBar] = usePersistedState(persistKey('pct-arm', 'dBar'), 16)
   const spacings = [125, 200, 250, 300] // → n per meter: 8, 5, 4, 3.33
 
   const walls = useMemo(() => {

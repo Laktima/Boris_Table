@@ -1,5 +1,6 @@
-import { useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { ceilingMath, formatNum, matchApprox } from '../lib/materials'
+import { persistKey, usePersistedState } from '../lib/persist'
 import { ResultRow } from '../components/DataTable'
 import { Field, SheetShell } from './shared'
 
@@ -20,9 +21,9 @@ const TABLE_GT6 = [
 ]
 
 export function ProgibSheet() {
-  const [H, setH] = useState(8.1)
-  const [Lfact, setLfact] = useState(3.2)
-  const [fFact, setFFact] = useState(1.67)
+  const [H, setH] = usePersistedState(persistKey('progib', 'H'), 8.1)
+  const [Lfact, setLfact] = usePersistedState(persistKey('progib', 'Lfact'), 3.2)
+  const [fFact, setFFact] = usePersistedState(persistKey('progib', 'fFact'), 1.67)
 
   const result = useMemo(() => {
     const table = H > 6 ? TABLE_GT6 : TABLE_LE6

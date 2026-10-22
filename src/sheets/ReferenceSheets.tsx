@@ -7,7 +7,13 @@ import { SheetShell } from './shared'
 export function AnalizShemSheet() {
   return (
     <SheetShell title="Анализ схем" subtitle="Сочетания нагрузок и контролируемые значения">
-      <DataTable rows={analiz.aoa as unknown[][]} />
+      <DataTable
+        rows={analiz.aoa as unknown[][]}
+        showCount={false}
+        striped
+        verticalBorders
+        numberColumn
+      />
     </SheetShell>
   )
 }

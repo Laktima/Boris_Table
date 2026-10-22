@@ -1,5 +1,6 @@
-import { useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { formatNum, matchApprox } from '../lib/materials'
+import { persistKey, usePersistedState } from '../lib/persist'
 import { ResultRow } from '../components/DataTable'
 import { Field, SheetShell } from './shared'
 
@@ -21,9 +22,9 @@ function kze(ze: number, kArr: number[]): number {
 }
 
 export function KoefKzeSheet() {
-  const [zeA, setZeA] = useState(27.517)
-  const [zeB, setZeB] = useState(5)
-  const [zeC, setZeC] = useState(5)
+  const [zeA, setZeA] = usePersistedState(persistKey('kze', 'zeA'), 27.517)
+  const [zeB, setZeB] = usePersistedState(persistKey('kze', 'zeB'), 5)
+  const [zeC, setZeC] = usePersistedState(persistKey('kze', 'zeC'), 5)
 
   const ka = useMemo(() => kze(zeA, KA), [zeA])
   const kb = useMemo(() => kze(zeB, KB), [zeB])

@@ -1,6 +1,7 @@
-import { useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import armZad from '../data/arm-zad.json'
 import { formatNum } from '../lib/materials'
+import { persistKey, usePersistedState } from '../lib/persist'
 import { DataTable, ResultRow } from '../components/DataTable'
 import { Field, SheetShell } from './shared'
 
@@ -31,9 +32,12 @@ const SCHEMES_200 = [
 ]
 
 export function ArmZadSheet() {
-  const [thickness, setThickness] = useState(180)
-  const [baseStep, setBaseStep] = useState<250 | 200>(250)
-  const [schemeIdx, setSchemeIdx] = useState(3)
+  const [thickness, setThickness] = usePersistedState(persistKey('arm-zad', 'thickness'), 180)
+  const [baseStep, setBaseStep] = usePersistedState<250 | 200>(
+    persistKey('arm-zad', 'baseStep'),
+    250,
+  )
+  const [schemeIdx, setSchemeIdx] = usePersistedState(persistKey('arm-zad', 'schemeIdx'), 3)
 
   const schemes = baseStep === 250 ? SCHEMES_250 : SCHEMES_200
   const scheme = schemes[Math.min(schemeIdx, schemes.length - 1)]

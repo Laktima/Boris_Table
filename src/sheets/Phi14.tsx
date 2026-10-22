@@ -1,13 +1,14 @@
-import { useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { formatNum } from '../lib/materials'
+import { persistKey, usePersistedState } from '../lib/persist'
 import { ResultRow } from '../components/DataTable'
 import { Field, SheetShell } from './shared'
 
 export function Phi14Sheet() {
-  const [qNorm, setQNorm] = useState(200)
-  const [area, setArea] = useState(36.1)
-  const [floors, setFloors] = useState(4)
-  const [roomType, setRoomType] = useState<1 | 2>(2)
+  const [qNorm, setQNorm] = usePersistedState(persistKey('phi14', 'qNorm'), 200)
+  const [area, setArea] = usePersistedState(persistKey('phi14', 'area'), 36.1)
+  const [floors, setFloors] = usePersistedState(persistKey('phi14', 'floors'), 4)
+  const [roomType, setRoomType] = usePersistedState<1 | 2>(persistKey('phi14', 'roomType'), 2)
 
   const r = useMemo(() => {
     const A = area

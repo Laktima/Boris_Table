@@ -1,5 +1,6 @@
-import { useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { formatNum } from '../lib/materials'
+import { persistKey, usePersistedState } from '../lib/persist'
 import { DataTable, ResultRow } from '../components/DataTable'
 import { Field, SheetShell } from './shared'
 
@@ -13,9 +14,12 @@ function etaCantilever(r: number) {
 }
 
 export function Fi3Sheet() {
-  const [H0, setH0] = useState(5280)
-  const [d, setD] = useState(2000)
-  const [link, setLink] = useState<(typeof LINKS)[number]>('С одной стороны')
+  const [H0, setH0] = usePersistedState(persistKey('fi3', 'H0'), 5280)
+  const [d, setD] = usePersistedState(persistKey('fi3', 'd'), 2000)
+  const [link, setLink] = usePersistedState<(typeof LINKS)[number]>(
+    persistKey('fi3', 'link'),
+    'С одной стороны',
+  )
 
   const calc = useMemo(() => {
     const ratio = d / H0

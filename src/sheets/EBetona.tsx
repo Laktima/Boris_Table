@@ -1,5 +1,6 @@
-import { useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { CONCRETE_RB, REBAR_SORTAMENT, formatNum } from '../lib/materials'
+import { persistKey, usePersistedState } from '../lib/persist'
 import { DataTable } from '../components/DataTable'
 import { Field, SheetShell } from './shared'
 
@@ -18,8 +19,11 @@ function toTs(mpa: number, factor: number) {
 }
 
 export function EBetonaSheet() {
-  const [klass, setKlass] = useState('B25')
-  const [roundMode, setRoundMode] = useState<RoundMode>('exact')
+  const [klass, setKlass] = usePersistedState(persistKey('e-betona', 'klass'), 'B25')
+  const [roundMode, setRoundMode] = usePersistedState<RoundMode>(
+    persistKey('e-betona', 'roundMode'),
+    'exact',
+  )
   const data = CONCRETE_RB[klass] ?? CONCRETE_RB.B25
   const factor = roundMode === 'round' ? FACTOR_ROUND : FACTOR_EXACT
 

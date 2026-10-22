@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { evaluateExpression, formatResult } from '../lib/math'
+import { persistKey, usePersistedState } from '../lib/persist'
 
 const HISTORY_KEY = 'boris-calc-history'
 
@@ -34,8 +35,8 @@ function parsePastedNumber(raw: string): string | null {
 }
 
 export function Calculator() {
-  const [expr, setExpr] = useState('')
-  const [display, setDisplay] = useState('0')
+  const [expr, setExpr] = usePersistedState(persistKey('calc', 'expr'), '')
+  const [display, setDisplay] = usePersistedState(persistKey('calc', 'display'), '0')
   const [error, setError] = useState('')
   const [history, setHistory] = useState<HistItem[]>(loadHistory)
   const exprRef = useRef(expr)

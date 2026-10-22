@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { persistKey, usePersistedState } from '../lib/persist'
 import {
   ARM_SECTIONS,
   blockStartRow,
@@ -154,7 +155,10 @@ export function ArmShkalSheet() {
   }, [blocks])
 
   const [copiedId, setCopiedId] = useState<string | null>(null)
-  const [filter, setFilter] = useState<FilterId>('all')
+  const [filter, setFilter] = usePersistedState<FilterId>(
+    persistKey('arm-shkal', 'filter'),
+    'all',
+  )
 
   const filtered = useMemo(() => {
     if (filter === 'all') return sections
